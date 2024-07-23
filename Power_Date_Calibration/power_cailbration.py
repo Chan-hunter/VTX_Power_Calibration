@@ -20,12 +20,14 @@ def process_columns(lines):
                     formatted_column_5 = f"{decimal_column_5:.1f}"[:4]
                 else:
                     formatted_column_5 = f"{decimal_column_5:.2f}"
+                prefix_column_5  = float(str(formatted_column_5))
         
                 if decimal_column_6 >= 1000:
                     formatted_column_6 = f"{decimal_column_6:.1f}"[:4]
-                    prefix_column_6 = int(str(decimal_column_6)[:4])
                 else:
                     formatted_column_6 = f"{decimal_column_6:.1f}"
+                prefix_column_6 = int(str(formatted_column_6))
+
                 error = abs(decimal_column_6 - decimal_column_1)
                 
                     # 替换原行中的第5列和第6列
@@ -33,10 +35,25 @@ def process_columns(lines):
                 columns[5] = formatted_column_6
 
                 error = abs(prefix_column_6 - decimal_column_1)
+                #仅输出测量频率与目标频率的误差小于2的，PWM值正常的行
                 if (error <= 2) & (decimal_column_2 != 2000) & (decimal_column_2 != 2):
-                    # 将处理后的行写入新文件
-                    processed_lines.append('	'.join(columns) + '\n')
+                     # 根据第5列的值分类
+                    if 13.8 <= prefix_column_5 <= 14.2:
+                        group = 'A'
+                    elif 19.8 <= prefix_column_5 <= 20.2:
+                        group = 'B'
+                    elif 22.8 <= prefix_column_5 <= 23.2:
+                        group = 'C'
+                    elif 25.8 <= prefix_column_5 <= 26.2:
+                        group = 'D'
+                    else :
+                        group = '其他'
+                    
+                    if group in ['A', 'B','C', 'D']:
+                        # 将处理后的行写入新文件
+                        processed_lines.append('	'.join(columns) + '\n')
                 print(f"{error}")
+
             except ValueError:
                 print(f"错误：无法转换第5列或第6列的值。")
         else:
@@ -52,7 +69,7 @@ def write_to_new_file(processed_lines, new_filename):
 # 主逻辑
 if __name__ == "__main__":
     original_filename = 'data.txt'
-    new_filename = 'after_change_data.txt'
+    new_filename = 'after_collating_data.txt'
     lines = read_file_lines(original_filename)
     processed_lines = process_columns(lines)
     write_to_new_file(processed_lines, new_filename)
