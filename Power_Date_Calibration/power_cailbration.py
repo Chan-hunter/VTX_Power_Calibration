@@ -60,7 +60,7 @@ def process_columns(lines):
                 error_line = error_line+1
         else:
             error_line = error_line+1
-    print(f"至少有{error_line}处错误数据")
+    print('\n'f"至少有{error_line}处错误数据")
 
     return processed_lines
 
@@ -68,7 +68,7 @@ def write_to_new_file(processed_lines, new_filename):
     """将处理后的数据写入新文件"""
     with open(new_filename, 'w') as new_file:
         new_file.writelines(processed_lines)
-    print(f"处理完成，结果已保存到 '{new_filename}'。")
+    print(f"处理完成，结果已保存到 '{new_filename}'。"'\n')
 
 def calculate_averages(filename):
     averages = {}
@@ -96,6 +96,18 @@ def calculate_averages(filename):
     output = ["   /*5600,5650,5700,5750,5800,5850,5900,5950,6000*/"]
     for col7 in sorted(result_matrix):
         output.append(f"    {{" + ", ".join(f"{value}" for value in result_matrix[col7].values()) + f"}},  /*{col7}*/")
+
+    if '26' in result_matrix:
+        # 获取第4行的数据
+        fourth_row = result_matrix['26']
+    
+        # 计算平均值
+        number_of_columns = len(fourth_row)  # 假设有9列数据
+        average_of_fourth_row = sum(fourth_row.values()) / number_of_columns
+        average_of_fourth_row = int(average_of_fourth_row) + 1
+    
+        # 打印平均值
+        print(f"最大功率的Vpd参考值: {average_of_fourth_row}"'\n')
 
     return "\n".join(output)
 
