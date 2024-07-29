@@ -1,4 +1,5 @@
 import csv
+import os
 
 def read_file_lines(filename):
     """读取文件中的所有行，并返回行列表"""
@@ -114,6 +115,38 @@ def calculate_averages(filename):
 
     return "\n".join(output)
 
+def convert_txt_to_xlsx(file_path):
+    """
+    将指定的txt文件的扩展名改为xlsx，并覆盖同名的旧xlsx文件。
+
+    参数:
+    file_path (str): 需要更改扩展名的文件的完整路径。
+    """
+    # 检查文件路径是否以.txt结尾
+    if not file_path.endswith('.txt'):
+        print(f"文件 '{file_path}' 不是txt文件，无法转换。")
+        return
+    
+    # 构造新的文件名，将.txt替换为.xlsx
+    new_file_path = file_path[:-4] + '.xlsx'
+    
+    # 检查新文件名是否已存在
+    if os.path.exists(new_file_path):
+        # 如果存在，先删除旧文件
+        try:
+            os.remove(new_file_path)
+        except OSError as e:
+            print(f"删除旧文件时出错: {e}")
+            return
+    
+    # 重命名文件
+    try:
+        os.rename(file_path, new_file_path)
+        print('\n'f"已生成所需数据文件'{new_file_path}'")
+    except OSError as e:
+        print('\n'f"无法生成所需数据文件: {e}")
+
+
 # 主逻辑
 if __name__ == "__main__":
     original_filename = 'data.txt'
@@ -123,3 +156,4 @@ if __name__ == "__main__":
     write_to_new_file(processed_lines, new_filename)
     output = calculate_averages(new_filename)
     print(output)
+    convert_txt_to_xlsx(new_filename)
