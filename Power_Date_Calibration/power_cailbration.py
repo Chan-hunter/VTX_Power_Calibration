@@ -15,6 +15,8 @@ def process_columns(lines):
                 # 转换第5列和第6列为浮点数
                 decimal_column_1 = float(columns[0])
                 decimal_column_2 = float(columns[1])
+                decimal_column_3 = float(columns[2])
+                decimal_column_4 = float(columns[3])
                 decimal_column_5 = float(columns[4])
                 decimal_column_6 = float(columns[5])
                 # 保留整数部分的前四位，如果小于1000则保留小数点后两位
@@ -29,30 +31,31 @@ def process_columns(lines):
                 else:
                     formatted_column_6 = f"{decimal_column_6:.1f}"
                 prefix_column_6 = int(str(formatted_column_6))
-
-                error = abs(decimal_column_6 - decimal_column_1)
                 
                 # 替换原行中的第5列和第6列
                 columns[4] = formatted_column_5
                 columns[5] = formatted_column_6
 
                 error = abs(prefix_column_6 - decimal_column_1)
+                error2 = abs(decimal_column_3 - decimal_column_4)
                 #仅输出测量频率与目标频率的误差小于2的，PWM值正常的行
-                if (error <= 2) & (decimal_column_2 != 2000) & (decimal_column_2 != 2):
+                if (error <= 2) & (decimal_column_2 != 2000) & (decimal_column_2 != 2) & (error2 <= 6):
                      # 根据第5列的值分类
-                    if 13.8 <= prefix_column_5 <= 14.2:
+                    if 13.8 <= prefix_column_5 <= 14.25:
                         group = '14'
-                    elif 19.8 <= prefix_column_5 <= 20.2:
+                    elif 19.8 <= prefix_column_5 <= 20.25:
                         group = '20'
-                    elif 22.8 <= prefix_column_5 <= 23.2:
+                    elif 22.8 <= prefix_column_5 <= 23.25:
                         group = '23'
-                    elif 25.8 <= prefix_column_5 <= 26.2:
+                    elif 25.8 <= prefix_column_5 <= 26.25:
                         group = '26'
+                    elif 26.8 <= prefix_column_5 <= 27.25:
+                        group = '27'   
                     else :
                         group = '其他'
                     #在第7列添加组别
                     columns.append(group)
-                    if group in ['14', '20','23', '26']:
+                    if group in ['14', '20','23', '26', '27']:
                         # 将处理后的行写入新文件
                         processed_lines.append('	'.join(columns) + '\n')
 
@@ -78,11 +81,11 @@ def calculate_averages(filename):
             try:
                 col1 = row[0]
                 col7 = row[6]
-                col5 = float(row[3])
+                col4 = float(row[3])
                 key = (col1, col7)
                 if key not in averages:
                     averages[key] = []
-                averages[key].append(col5)
+                averages[key].append(col4)
             except (IndexError, ValueError):
                 continue
 
