@@ -40,7 +40,7 @@ def process_columns(lines):
                 error = abs(prefix_column_6 - decimal_column_1)
                 error2 = abs(decimal_column_3 - decimal_column_4)
                 #仅输出测量频率与目标频率的误差小于2的，PWM值正常的行
-                if (error <= 2) & (decimal_column_2 != 2000) & (decimal_column_2 != 2) & (error2 <= 6):
+                if (error <= 2) & (decimal_column_2 != 3000) & (decimal_column_2 != 2) & (error2 <= 6):
                      # 根据第5列的值分类
                     if 13.8 <= prefix_column_5 <= 14.25:
                         group = '14'
@@ -75,7 +75,19 @@ def write_to_new_file(processed_lines, new_filename):
     print(f"处理完成，结果已保存到 '{new_filename}'。"'\n')
 
 def calculate_averages(filename):
+    """求平均"""
+    frequencys = ['5600', '5650', '5700', '5750', '5800', '5850', '5900', '5950', '6000']
+    powers = ['14', '20', '23', '26', '27']
+
+    # 初始化字典
     averages = {}
+
+    # 使用嵌套循环来创建键和空列表
+    for frequency in frequencys:
+        for power in powers:
+            key = (frequency, power)
+            averages[key] = []
+
     with open(filename, 'r') as file:
         reader = csv.reader(file, delimiter='\t')
         for row in reader:
@@ -84,8 +96,6 @@ def calculate_averages(filename):
                 col7 = row[6]
                 col4 = float(row[3])
                 key = (col1, col7)
-                if key not in averages:
-                    averages[key] = []
                 averages[key].append(col4)
             except (IndexError, ValueError):
                 continue
@@ -101,9 +111,9 @@ def calculate_averages(filename):
     for col7 in sorted(result_matrix):
         output.append(f"    {{" + ", ".join(f"{value}" for value in result_matrix[col7].values()) + f"}},  /*{col7}*/")
 
-    if '26' in result_matrix:
+    if '27' in result_matrix:
         # 获取第4行的数据
-        fourth_row = result_matrix['26']
+        fourth_row = result_matrix['27']
     
         # 计算平均值
         number_of_columns = len(fourth_row)  # 假设有9列数据
